@@ -103,6 +103,5 @@ app.delete("/passwords", verifyToken, async (req, res) => {
       .json({ error: "Error deleting password", details: error.message });
   }
 });
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+
+export default app;
