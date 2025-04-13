@@ -1,11 +1,10 @@
 import express from "express";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import bodyParser from "body-parser";
 import cors from "cors";
 import users from "../routes/users.js";
 import login from "../routes/login.js";
 import jwt from "jsonwebtoken";
-import { ObjectId } from "mongodb";
 import "dotenv/config";
 
 const url = process.env.MONGO_URI;
@@ -18,14 +17,13 @@ const db = client.db(dbName);
 const passwordsCollection = db.collection("passwords");
 
 const app = express();
-const port = 3000;
 
 app.use("/users", users);
 app.use("/login", login);
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "*", // or use your frontend Vercel domain
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -45,13 +43,10 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-app.get("/", async (req, res) => {
-  try {
-    res.send("Backend Running");
-  } catch (error) {
-    res.status(500).json({ error: "Error running server" });
-  }
+app.get("/", (req, res) => {
+  res.send("Backend Running");
 });
+
 app.get("/passwords", verifyToken, async (req, res) => {
   try {
     const passwords = await passwordsCollection
@@ -85,8 +80,6 @@ app.delete("/passwords", verifyToken, async (req, res) => {
     if (!id) {
       return res.status(400).json({ error: "Missing password ID" });
     }
-
-    // const objectId = new ObjectId(id);
 
     const deleteResult = await passwordsCollection.deleteOne({
       _id: ObjectId.isValid(id) ? new ObjectId(id) : id,
