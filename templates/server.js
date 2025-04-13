@@ -45,6 +45,13 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+app.get("/", async (req, res) => {
+  try {
+    res.send("Backend Running");
+  } catch (error) {
+    res.status(500).json({ error: "Error running server" });
+  }
+});
 app.get("/passwords", verifyToken, async (req, res) => {
   try {
     const passwords = await passwordsCollection
